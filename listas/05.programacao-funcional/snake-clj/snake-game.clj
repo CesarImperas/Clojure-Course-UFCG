@@ -1,6 +1,4 @@
 ;; Snake Game Functional in Clojure - Caio Cesar Vieira Cavalcanti - 123110825 - 01/05/2025
-;; Problema - A cobra não se movimenta a cada tick automaticamente
-
 
 (ns snake-game
   (:require [clojure.string :as str])
@@ -87,31 +85,38 @@
 
 (defn render-cell [snake food x y]
   (cond
-    (= {:x x :y y} (first snake)) "S"
-    (some #(= {:x x :y y} %) (rest snake)) "s"
-    (= {:x x :y y} food) "*"
-    :else "-"))
+    (= {:x x :y y} (first snake)) "O"
+    (some #(= {:x x :y y} %) (rest snake)) "o"
+    (= {:x x :y y} food) "@"
+    :else "."))
 
 (defn render [state]
   (clear-screen)
+  (let [horizontal-border (apply str (repeat (+ WIDTH 2) "#"))]
+    (println horizontal-border)
   (doseq [y (range HEIGHT)]
-    (println (apply str (for [x (range WIDTH)] (render-cell (:snake state) (:food state) x y))))))
+    (print "#")
+    (doseq [x (range WIDTH)]
+      (print (render-cell (:snake state) (:food state) x y)))
+    (println "#"))
+  (println horizontal-border)))
 
 ;; ---------------------------------------------------------------------
 ;; Input - Keyboard WASD directions
 ;; ---------------------------------------------------------------------
 
 (defn read-key []
-  (let [key (.read reader)]
-    (when (not= key -1) ;; -1 means no key pressed
-      key)))
+  (let [in (System/in)]
+    (if (> (.available in) 0)
+      (.read in)
+      nil)))
 
 (defn key->dir [k]
   (case k
-    119 :UP
-    115 :DOWN
-    97 :LEFT
-    100 :RIGHT
+    \w :UP
+    \s :DOWN
+    \a :LEFT
+    \d :RIGHT
     nil))
 
 (defn update-dir [direction input-dir]
@@ -138,12 +143,13 @@
   (render state)
   (if (:game-over? state)
     (do
-      (println "\nGame Over! Replay in 3s")
+      (println "\nGame Over! Replay in 3s...")
       (wait 3000)
       (replay (:history state)))
     (let [input (read-key)
-          new-dir (if input
-                    (update-dir (:direction state) (key->dir input))
+          input-char (when input (char input))
+          new-dir (if input-char
+                    (update-dir (:direction state) (key->dir input-char))
                     (:direction state))
           nextS (next-state (assoc state :direction new-dir))]
       (wait TICKRATE)
@@ -167,7 +173,4 @@
       (restore-mode))))
 
 (-main)
-
-
-
 

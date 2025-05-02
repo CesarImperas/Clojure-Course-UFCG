@@ -78,16 +78,22 @@ function updateState(prev) {
 /* Terminal */
 function render(state) {
 	stdout.write('\x1B[H');
+	const horizontalBorder = "#".repeat(WIDTH + 2);
+
+	console.log(horizontalBorder);
+
 	for (let y = 0; y < HEIGHT; y++) {
-		let line = '';
+		let line = '#';
 		for(let x = 0; x < WIDTH; x++) {
 			const isHead = x === state.snake[0].x && y === state.snake[0].y;
 			const isBody = state.snake.slice(1).some(s => s.x === x && s.y === y);
 			const isFood = state.food.x === x && state.food.y === y;
-			line += isHead ? 'S' : isBody ? 's' : isFood ? '*' : '-';
+			line += isHead ? 'O' : isBody ? 'o' : isFood ? '@' : '.';
 		}
+		line += "#";
 		console.log(line);
 	}
+	console.log(horizontalBorder);
 }
 
 /* Input - Keyboard WASD */
